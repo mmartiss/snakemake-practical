@@ -1,0 +1,27 @@
+configfile: "config/config.yaml"
+
+SAMPLES = config["samples"]
+
+rule all:
+	input:
+		"results/summary.tsv"
+
+rule sequence_stats:
+	input:
+		"data/{sample}.fasta"
+	output:
+		"results/{sample}.tsv"
+	shell:
+		"python scripts/sequence_stats.py {input} {output}"
+
+rule summary:
+	input:
+		expand("results/{sample}.tsv", sample=SAMPLES)
+	output:
+		"results/summary.tsv"
+	shell:
+		"""
+		printf 'sample\\tlength\\tgc_percent\\n' > {output}
+		cat {input} >> {output}
+		"""
+
